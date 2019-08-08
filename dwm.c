@@ -421,13 +421,16 @@ buttonpress(XEvent *e)
 	Client *c;
 	Monitor *m;
 	XButtonPressedEvent *ev = &e->xbutton;
+	int flag;
 
+	flag = 0;
 	click = ClkRootWin;
 	/* focus monitor if necessary */
 	if ((m = wintomon(ev->window)) && m != selmon) {
 		unfocus(selmon->sel, 1);
 		selmon = m;
-		focus(NULL);
+		flag = 1;
+		/* focus(NULL); */
 	}
 	if (ev->window == selmon->barwin) {
 		i = x = 0;
@@ -445,10 +448,12 @@ buttonpress(XEvent *e)
 			click = ClkWinTitle;
 	} else if ((c = wintoclient(ev->window))) {
 		focus(c);
-		restack(selmon);
+		if(flag) restack(selmon);
+		flag = 0;
 		XAllowEvents(dpy, ReplayPointer, CurrentTime);
 		click = ClkClientWin;
 	}
+	if(flag) focus(NULL);
 	for (i = 0; i < LENGTH(buttons); i++)
 		if (click == buttons[i].click && buttons[i].func && buttons[i].button == ev->button
 		&& CLEANMASK(buttons[i].mask) == CLEANMASK(ev->state))
@@ -730,11 +735,10 @@ drawbar(Monitor *m)
 
 	if ((w = m->ww - sw - x) > bh) {
 		if (m->sel) {
-			drw_setscheme(drw, scheme[m == selmon ? SchemeSel : SchemeNorm]);
-			/* Draws the title at bottom of screen -- quite horrendous */
+			/* drw_setscheme(drw, scheme[m == selmon ? SchemeSel : SchemeNorm]); */
 			/* drw_text(drw, x, 0, w, bh, lrpad / 2, m->sel->name, 0); */
-			if (m->sel->isfloating)
-				drw_rect(drw, x + boxs, boxs, boxw, boxw, m->sel->isfixed, 0);
+			/* if (m->sel->isfloating) */
+				/* drw_rect(drw, x + boxs, boxs, boxw, boxw, m->sel->isfixed, 0); */
 		} else {
 			drw_setscheme(drw, scheme[SchemeNorm]);
 			drw_rect(drw, x, 0, w, bh, 1, 1);
@@ -807,6 +811,8 @@ focus(Client *c)
 	}
 	selmon->sel = c;
 	drawbars();
+	/* Probably could find an optimized set of calls here but this is fine */
+	arrange(NULL);
 }
 
 /* there are some broken focus acquiring clients needing extra handling */
@@ -823,14 +829,18 @@ void
 focusmon(const Arg *arg)
 {
 	Monitor *m;
+	Monitor* old_selmon;
 
 	if (!mons->next)
 		return;
 	if ((m = dirtomon(arg->i)) == selmon)
 		return;
 	unfocus(selmon->sel, 0);
+	old_selmon = selmon;
 	selmon = m;
 	focus(NULL);
+	/* May need a restack(selmon) */
+	restack(old_selmon);
 }
 
 void
@@ -1016,6 +1026,7 @@ killclient(const Arg *arg)
 		XSetErrorHandler(xerror);
 		XUngrabServer(dpy);
 	}
+	/*May need some stuff here */
 }
 
 void
@@ -1113,8 +1124,8 @@ monocle(Monitor *m)
 	for (c = m->clients; c; c = c->next)
 		if (ISVISIBLE(c))
 			n++;
-	if (n > 0) /* override layout symbol */
-		snprintf(m->ltsymbol, sizeof m->ltsymbol, "[%d]", n);
+	/*if (n > 0) override layout symbol */
+	snprintf(m->ltsymbol, sizeof m->ltsymbol, "[%d]", n);
 	for (c = nexttiled(m->clients); c; c = nexttiled(c->next))
 		resize(c, m->wx, m->wy, m->ww - 2 * c->bw, m->wh - 2 * c->bw, 0);
 }
@@ -1122,6 +1133,7 @@ monocle(Monitor *m)
 void
 motionnotify(XEvent *e)
 {
+	return;
 	static Monitor *mon = NULL;
 	Monitor *m;
 	XMotionEvent *ev = &e->xmotion;
@@ -1139,6 +1151,7 @@ motionnotify(XEvent *e)
 void
 movemouse(const Arg *arg)
 {
+	return;
 	int x, y, ocx, ocy, nx, ny;
 	Client *c;
 	Monitor *m;
@@ -1698,6 +1711,8 @@ tile(Monitor *m)
 			resize(c, m->wx + mw, m->wy + ty, m->ww - mw - (2*c->bw), h - (2*c->bw), 0);
 			ty += HEIGHT(c);
 		}
+	/* Need to set m->ltsymbol */
+	snprintf(m->ltsymbol, sizeof m->ltsymbol, "[%d]", n);
 }
 
 void
