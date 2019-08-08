@@ -29,8 +29,6 @@ void newtagspawn(const Arg * arg);
 void zoom_or_open(const Arg * arg);
 void focusmon_int(Monitor * m);
 void mylayout(Monitor * m);
-void toggleffscreen(const Arg * arg);
-static int ffscreen = 0;
 
 
 /* tagging */
@@ -103,7 +101,6 @@ static Key keys[] = {
 	{ MODKEY,                       XK_m,      setlayout,      {.v = &layouts[3]} },
 	{ MODKEY,                       XK_space,  setlayout,      {0} },
 	{ MODKEY|ShiftMask,             XK_space,  togglefloating, {0} },
-	{ MODKEY|ShiftMask,             XK_f,      toggleffscreen, {0} },
 	{ MODKEY,                       XK_0,      view,           {.ui = ~0 } },
 	{ MODKEY|ShiftMask,             XK_0,      tag,            {.ui = ~0 } },
 	{ MODKEY,                       XK_comma,  focusmon,       {.i = -1 } },
@@ -151,11 +148,6 @@ void zoom_or_open(const Arg * arg)
 {
 	if(selmon->clients == selmon->sel || !selmon->sel) spawn(arg);
 	else zoom(NULL);
-}
-
-void toggleffscreen(const Arg * arg)
-{
-	ffscreen ^= 1;
 }
 
 unsigned int freetag(int force)
