@@ -129,7 +129,7 @@ static Key keys[] = {
 	{ MODKEY|ShiftMask,             XK_q,      quit,           {0} },
 	{ MODKEY,                       XK_v,      spawn,          SHCMD("vol -5%") },
 	{ MODKEY|ShiftMask,             XK_v,      spawn,          SHCMD("vol +5%") },
-	{ MODKEY,                       XK_a,      spawn,          SHCMD("audio") },
+	{ MODKEY,                       XK_a,      spawn,          SHCMD("dmenu_audio") },
 };
 
 /* button definitions */
