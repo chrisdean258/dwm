@@ -810,6 +810,7 @@ focus(Client *c)
 		XDeleteProperty(dpy, root, netatom[NetActiveWindow]);
 	}
 	selmon->sel = c;
+	updatestatus();
 	drawbars();
 	/* Probably could find an optimized set of calls here but this is fine */
 	arrange(NULL);
@@ -1393,8 +1394,11 @@ run(void)
 	/* main event loop */
 	XSync(dpy, False);
 	while (running && !XNextEvent(dpy, &ev))
+	{
+		updatestatus();
 		if (handler[ev.type])
 			handler[ev.type](&ev); /* call handler */
+	}
 }
 
 void
@@ -2146,8 +2150,6 @@ zoom(const Arg *arg)
 int
 main(int argc, char *argv[])
 {
-	int w;
-
 	if (argc == 2 && !strcmp("-v", argv[1]))
 		die("dwm-"VERSION);
 	else if (argc != 1)
@@ -2156,15 +2158,6 @@ main(int argc, char *argv[])
 		fputs("warning: no locale support\n", stderr);
 	if (!(dpy = XOpenDisplay(NULL)))
 		die("dwm: cannot open display");
-	FILE * f = popen("xrandr | grep '*'", "r");
-	if(f)
-	{
-		if(fscanf(f, "%dx%*d", &w) == 1 && w > 3000)
-		{
-			fonts[0] = "monospace:size=16";
-		}
-		fclose(f);
-	}
 	setup();
 	checkotherwm();
 #ifdef __OpenBSD__
