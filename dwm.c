@@ -1395,7 +1395,6 @@ run(void)
 	XSync(dpy, False);
 	while (running && !XNextEvent(dpy, &ev))
 	{
-		updatestatus();
 		if (handler[ev.type])
 			handler[ev.type](&ev); /* call handler */
 	}
