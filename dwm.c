@@ -429,8 +429,8 @@ buttonpress(XEvent *e)
 	if ((m = wintomon(ev->window)) && m != selmon) {
 		unfocus(selmon->sel, 1);
 		selmon = m;
-		flag = 1;
-		/* focus(NULL); */
+		//flag = 1;
+		focus(NULL);
 	}
 	if (ev->window == selmon->barwin) {
 		i = x = 0;
@@ -448,12 +448,12 @@ buttonpress(XEvent *e)
 			click = ClkWinTitle;
 	} else if ((c = wintoclient(ev->window))) {
 		focus(c);
-		if(flag) restack(selmon);
+		/*if(flag) */restack(selmon);
 		flag = 0;
 		XAllowEvents(dpy, ReplayPointer, CurrentTime);
 		click = ClkClientWin;
 	}
-	if(flag) focus(NULL);
+	//if(flag) focus(NULL);
 	for (i = 0; i < LENGTH(buttons); i++)
 		if (click == buttons[i].click && buttons[i].func && buttons[i].button == ev->button
 		&& CLEANMASK(buttons[i].mask) == CLEANMASK(ev->state))
@@ -810,7 +810,6 @@ focus(Client *c)
 		XDeleteProperty(dpy, root, netatom[NetActiveWindow]);
 	}
 	selmon->sel = c;
-	updatestatus();
 	drawbars();
 	/* Probably could find an optimized set of calls here but this is fine */
 	arrange(NULL);
@@ -1724,7 +1723,6 @@ togglebar(const Arg *arg)
 	selmon->showbar = !selmon->showbar;
 	updatebarpos(selmon);
 	XMoveResizeWindow(dpy, selmon->barwin, selmon->wx, selmon->by, selmon->ww, bh);
-	updatestatus();
 	arrange(selmon);
 }
 
@@ -2158,8 +2156,8 @@ main(int argc, char *argv[])
 		fputs("warning: no locale support\n", stderr);
 	if (!(dpy = XOpenDisplay(NULL)))
 		die("dwm: cannot open display");
-	setup();
 	checkotherwm();
+	setup();
 #ifdef __OpenBSD__
 	if (pledge("stdio rpath proc exec", NULL) == -1)
 		die("pledge");
