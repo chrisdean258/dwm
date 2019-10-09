@@ -179,7 +179,7 @@ Client * find_client_by_name(const char * name)
 
 void handle_browser(const Arg* arg)
 {
-	spawn_and_open("Chromium", arg);
+	spawn_and_open("hrom", arg);
 }
 
 void handle_st(const Arg* arg)
