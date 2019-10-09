@@ -51,6 +51,7 @@ static const Rule rules[] = {
 	/* class               instance    title       tags mask     isfloating   monitor */
 	{ "hrom",              NULL,       NULL,       1 << 8,       0,           -1 }, /* Chrome */
 	{ "st-256color",       NULL,       NULL,       1 << 7,       0,           -1 },
+	{ "Zathura",           NULL,       NULL,       1 << 6,       0,           -1 },
 };
 
 /* layout(s) */
@@ -191,22 +192,15 @@ void handle_st(const Arg* arg)
 void spawn_and_open(const char * name, const Arg * command)
 {
 	Client * c;
-	const Rule * r;
 	Arg a;
-	int i;
-	a.ui = 0;
+
 	c = find_client_by_name(name);
-	if(!c)
+	if(!c) spawn(command);
+	else
 	{
-		spawn(command);
-		for (i = 0; i < LENGTH(rules); i++) {
-			r = &rules[i];
-			if (r->class && strstr(r->class, name)) a.ui = r->tags;
-		}
-		if((selmon->tagset[selmon->seltags] & r->tags) == r->tags) return;
+		a.ui = c->tags;
+		toggleview(&a);
 	}
-	else a.ui = c->tags;
-	toggleview(&a);
 }
 
 void restart(const Arg * arg)

@@ -283,6 +283,7 @@ applyrules(Client *c)
 	const Rule *r;
 	Monitor *m;
 	XClassHint ch = { NULL, NULL };
+	Arg a;
 
 	/* rule matching */
 	c->isfloating = 0;
@@ -298,7 +299,10 @@ applyrules(Client *c)
 		&& (!r->instance || strstr(instance, r->instance)))
 		{
 			c->isfloating = r->isfloating;
-			c->tags = r->tags;
+			if(r->tags) c->tags = r->tags;
+			selmon->tagset[selmon->seltags] |= r->tags;
+			a.ui = 0;
+			toggleview(&a);
 			for (m = mons; m && m->num != r->monitor; m = m->next);
 			if (m)
 				c->mon = m;
