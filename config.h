@@ -34,6 +34,10 @@ void newtagspawn(const Arg * arg);
 void zoom_or_open(const Arg * arg);
 void focusmon_int(Monitor * m);
 void mylayout(Monitor * m);
+void handle_st(const Arg * arg);
+void handle_browser(const Arg * arg);
+void spawn_and_open(const char * name, const Arg * command);
+Client * find_client_by_name(const char * name);
 
 
 /* tagging */
@@ -44,9 +48,9 @@ static const Rule rules[] = {
 	 *	WM_CLASS(STRING) = instance, class
 	 *	WM_NAME(STRING) = title
 	 */
-	/* class      instance    title       tags mask     isfloating   monitor */
-	//{ "Gimp",     NULL,       NULL,       0,            1,           -1 },
-	{ "NotFirefox",  NULL,       NULL,       1 << 8,       0,           -1 },
+	/* class               instance    title       tags mask     isfloating   monitor */
+	{ "Chromium-browser",  NULL,       NULL,       1 << 8,       0,           -1 },
+	{ "st-256color",       NULL,       NULL,       1 << 7,       0,           -1 },
 };
 
 /* layout(s) */
@@ -63,18 +67,16 @@ static const Layout layouts[] = {
 };
 
 /* key definitions */
+/* alt only to view  */
+/* alt + ctrl to add or remove tag from view */
+/* alt + shift to view a tag */
+/* alt + ctrl + shift to toggle a tage from view */
 #define MODKEY Mod1Mask
-/*#define TAGKEYS(KEY,TAG) \
-	{ MODKEY,                       KEY,      view,           {.ui = 1 << TAG} }, \
-	{ MODKEY|ControlMask,           KEY,      toggleview,     {.ui = 1 << TAG} }, \
-	{ MODKEY|ShiftMask,             KEY,      tag,            {.ui = 1 << TAG} }, \
-	{ MODKEY|ControlMask|ShiftMask, KEY,      toggletag,      {.ui = 1 << TAG} }, */
-
 #define TAGKEYS(KEY,TAG) \
-	{ MODKEY,                       KEY,      view,           {.ui = 1 << TAG} }, \
-	{ MODKEY|ControlMask,           KEY,      tag,            {.ui = 1 << TAG} }, \
-	{ MODKEY|ShiftMask,             KEY,      movetotag,      {.ui = 1 << TAG} }, \
-	{ MODKEY|ControlMask|ShiftMask, KEY,      toggletag,      {.ui = 1 << TAG} },
+{ MODKEY,                       KEY,      view,           {.ui = 1 << TAG} }, \
+{ MODKEY|ControlMask,           KEY,      toggleview,     {.ui = 1 << TAG} }, \
+{ MODKEY|ShiftMask,             KEY,      tag,            {.ui = 1 << TAG} }, \
+{ MODKEY|ControlMask|ShiftMask, KEY,      toggletag,      {.ui = 1 << TAG} },
 
 /* helper for spawning shell commands in the pre dwm-5.0 fashion */
 #define SHCMD(cmd) { .v = (const char*[]){ "/bin/bash", "-c", cmd, NULL } }
@@ -88,7 +90,8 @@ static Key keys[] = {
 	/* modifier                     key        function        argument */
 	{ MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
 	{ MODKEY|ShiftMask,             XK_t,      spawn,          {.v = termcmd } },
-	{ MODKEY|ShiftMask,             XK_Return, spawn,          {.v = termcmd } },
+	{ MODKEY,                       XK_Return, handle_st,      {.v = termcmd } },
+	{ MODKEY|ShiftMask,             XK_Return, zoom,           {0} },
 	{ MODKEY,                       XK_b,      togglebar,      {0} },
 	{ MODKEY,                       XK_j,      focusstack,     {.i = +1 } },
 	{ MODKEY,                       XK_k,      focusstack,     {.i = -1 } },
@@ -96,7 +99,6 @@ static Key keys[] = {
 	{ MODKEY,                       XK_d,      incnmaster,     {.i = -1 } },
 	{ MODKEY,                       XK_h,      setmfact,       {.f = -0.05} },
 	{ MODKEY,                       XK_l,      setmfact,       {.f = +0.05} },
-	{ MODKEY,                       XK_Return, zoom_or_open,   {.v = termcmd } },
 	{ MODKEY,                       XK_Tab,    view,           {0} },
 	{ MODKEY,                       XK_Escape, killclient,     {0} },
 	{ MODKEY|ShiftMask,             XK_c,      killclient,     {0} },
@@ -114,7 +116,7 @@ static Key keys[] = {
 	{ MODKEY|ShiftMask,             XK_period, focustagmon,    {.i = +1 } },
 	{ MODKEY|ControlMask,           XK_comma,  tagmon,         {.i = -1 } },
 	{ MODKEY|ControlMask,           XK_period, tagmon,         {.i = +1 } },
-	{ MODKEY,                       XK_g,      spawn,          SHCMD("browser") },
+	{ MODKEY,                       XK_g,      handle_browser, SHCMD("browser") },
 	{ MODKEY,                       XK_o,      spawn,          SHCMD("monitor detect") },
 	{ MODKEY,                       XK_r,      restart,        {0} },
 	TAGKEYS(                        XK_1,                      0)
@@ -131,6 +133,8 @@ static Key keys[] = {
 	{ MODKEY|ShiftMask,             XK_v,      spawn,          SHCMD("vol +5%") },
 	{ MODKEY,                       XK_a,      spawn,          SHCMD("dmenu_audio") },
 	{ MODKEY|ShiftMask,             XK_b,      spawn,          SHCMD("dmenu_backlight") },
+	{ MODKEY|ShiftMask,             XK_u,      spawn,          SHCMD("backlight +10") },
+	{ MODKEY,                       XK_u,      spawn,          SHCMD("backlight -10") },
 };
 
 /* button definitions */
@@ -150,12 +154,6 @@ static Button buttons[] = {
 	{ ClkTagBar,            MODKEY,         Button3,        toggletag,      {0} },
 };
 
-void zoom_or_open(const Arg * arg)
-{
-	if(selmon->clients == selmon->sel || !selmon->sel) spawn(arg);
-	else zoom(NULL);
-}
-
 unsigned int freetag(int force)
 {
 	Client * i;
@@ -170,6 +168,43 @@ unsigned int freetag(int force)
 
 	/* Dat bithack tho */
 	return (mask + 1) & ~mask;
+}
+
+Client * find_client_by_name(const char * name)
+{
+	Client * c;
+	for(c = selmon->clients; c && !strstr(c->name, name); c = c->next);
+	return c;
+}
+
+void handle_browser(const Arg* arg)
+{
+	spawn_and_open("Chromium", arg);
+}
+
+void handle_st(const Arg* arg)
+{
+	spawn_and_open("st", arg);
+}
+
+void spawn_and_open(const char * name, const Arg * command)
+{
+	Client * c;
+	const Rule * r;
+	Arg a;
+	int i;
+	a.ui = 0;
+	c = find_client_by_name(name);
+	if(!c)
+	{
+		spawn(command);
+		for (i = 0; i < LENGTH(rules); i++) {
+			r = &rules[i];
+			if (r->class && strstr(r->class, name)) a.ui = r->tags;
+		}
+	}
+	else a.ui = c->tags;
+	toggleview(&a);
 }
 
 void restart(const Arg * arg)
