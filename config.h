@@ -203,6 +203,7 @@ void spawn_and_open(const char * name, const Arg * command)
 			r = &rules[i];
 			if (r->class && strstr(r->class, name)) a.ui = r->tags;
 		}
+		if((selmon->tagset[selmon->seltags] & r->tags) == r->tags) return;
 	}
 	else a.ui = c->tags;
 	toggleview(&a);
