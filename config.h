@@ -25,6 +25,8 @@ static const char *colors[][3]      = {
 	[SchemeSel]  = { col_gray4, col_black,  col_cyan  },
 };
 
+typedef int search_func(const char *, const char *);
+
 /* Custom function dcls */
 void restart(const Arg * arg);
 void focustagmon(const Arg * arg);
@@ -36,8 +38,10 @@ void focusmon_int(Monitor * m);
 void mylayout(Monitor * m);
 void handle_st(const Arg * arg);
 void handle_browser(const Arg * arg);
-void spawn_and_open(const char * name, const Arg * command);
-Client * find_client_by_name(const char * name);
+void spawn_and_open(const char * name, search_func func, const Arg * command);
+Client * find_client_by_name(const char * name, search_func func);
+int strin(const char * a, const char *b);
+int streq(const char * a, const char *b);
 
 
 /* tagging */
@@ -172,29 +176,39 @@ unsigned int freetag(int force)
 	return (mask + 1) & ~mask;
 }
 
-Client * find_client_by_name(const char * name)
+int streq(const char * a, const char * b)
+{
+	return !strcmp(a, b);
+}
+
+int strin(const char * a, const char *b)
+{
+	return strstr(a, b) != NULL;
+}
+
+Client * find_client_by_name(const char * name, search_func func)
 {
 	Client * c;
-	for(c = selmon->clients; c && !strstr(c->name, name); c = c->next);
+	for(c = selmon->clients; c && !func(c->name, name); c = c->next);
 	return c;
 }
 
 void handle_browser(const Arg* arg)
 {
-	spawn_and_open("hrom", arg);
+	spawn_and_open("hrom", strin, arg);
 }
 
 void handle_st(const Arg* arg)
 {
-	spawn_and_open("st", arg);
+	spawn_and_open("st", streq, arg);
 }
 
-void spawn_and_open(const char * name, const Arg * command)
+void spawn_and_open(const char * name, search_func func, const Arg * command)
 {
 	Client * c;
 	Arg a;
 
-	c = find_client_by_name(name);
+	c = find_client_by_name(name, func);
 	if(!c) spawn(command);
 	else
 	{
