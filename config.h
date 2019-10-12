@@ -30,11 +30,6 @@ typedef int search_func(const char *, const char *);
 /* Custom function dcls */
 void restart(const Arg * arg);
 void focustagmon(const Arg * arg);
-void movetotag(const Arg * arg);
-void newtag(const Arg * arg);
-void newtagspawn(const Arg * arg);
-void zoom_or_open(const Arg * arg);
-void focusmon_int(Monitor * m);
 void mylayout(Monitor * m);
 void handle_st(const Arg * arg);
 void handle_browser(const Arg * arg);
@@ -84,7 +79,7 @@ static const Layout layouts[] = {
 { MODKEY|ControlMask|ShiftMask, KEY,      toggletag,      {.ui = 1 << TAG} },
 
 /* helper for spawning shell commands in the pre dwm-5.0 fashion */
-#define SHCMD(cmd) { .v = (const char*[]){ "/bin/bash", "-c", cmd, NULL } }
+#define SHCMD(cmd) { .v = (const char*[]){ "/bin/sh", "-c", cmd, NULL } }
 
 /* commands */
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
@@ -115,6 +110,7 @@ static Key keys[] = {
 	{ MODKEY,                       XK_space,  setlayout,      {0} },
 	{ MODKEY|ShiftMask,             XK_space,  togglefloating, {0} },
 	{ MODKEY,                       XK_0,      view,           {.ui = ~0 } },
+	{ MODKEY|ControlMask,           XK_0,      toggleview,     {.ui = ~0 } },
 	{ MODKEY|ShiftMask,             XK_0,      tag,            {.ui = ~0 } },
 	{ MODKEY,                       XK_comma,  focusmon,       {.i = -1 } },
 	{ MODKEY,                       XK_period, focusmon,       {.i = +1 } },
@@ -147,60 +143,20 @@ static Key keys[] = {
 /* click can be ClkTagBar, ClkLtSymbol, ClkStatusText, ClkWinTitle, ClkClientWin, or ClkRootWin */
 static Button buttons[] = {
 	/* click                event mask      button          function        argument */
-	/* { ClkLtSymbol,          0,              Button1,        setlayout,      {0} },
-	{ ClkLtSymbol,          0,              Button3,        setlayout,      {.v = &layouts[2]} },
-	{ ClkWinTitle,          0,              Button2,        zoom,           {0} },
-	{ ClkStatusText,        0,              Button2,        spawn,          {.v = termcmd } }, */
 	{ ClkClientWin,         MODKEY,         Button3,        movemouse,      {0} },
-	/*{ ClkClientWin,         MODKEY,         Button2,        togglefloating, {0} }, */
 	{ ClkClientWin,         MODKEY,         Button3,        resizemouse,    {0} },
-	/*{ ClkTagBar,            0,              Button1,        view,           {0} },
-	{ ClkTagBar,            0,              Button3,        toggleview,     {0} },
-	{ ClkTagBar,            MODKEY,         Button1,        tag,            {0} },
-	{ ClkTagBar,            MODKEY,         Button3,        toggletag,      {0} }, */
 };
 
-unsigned int freetag(int force)
-{
-	Client * i;
-	unsigned int mask;
-
-	mask = 0;
-
-	for(i = selmon->clients; i; i = i->next)
-	{
-		if(force || i != selmon->sel) mask |= i->tags;
-	}
-
-	/* Dat bithack tho */
-	return (mask + 1) & ~mask;
-}
-
-int streq(const char * a, const char * b)
-{
-	return !strcmp(a, b);
-}
-
-int strin(const char * a, const char *b)
-{
-	return strstr(a, b) != NULL;
-}
+int streq(const char * a, const char * b) { return !strcmp(a, b); }
+int strin(const char * a, const char *b) { return strstr(a, b) != NULL; }
+void handle_browser(const Arg* arg) { spawn_and_open("hrom", strin, arg); }
+void handle_st(const Arg* arg) { spawn_and_open("st", streq, arg); }
 
 Client * find_client_by_name(const char * name, search_func func)
 {
 	Client * c;
 	for(c = selmon->clients; c && !func(c->name, name); c = c->next);
 	return c;
-}
-
-void handle_browser(const Arg* arg)
-{
-	spawn_and_open("hrom", strin, arg);
-}
-
-void handle_st(const Arg* arg)
-{
-	spawn_and_open("st", streq, arg);
 }
 
 void spawn_and_open(const char * name, search_func func, const Arg * command)
@@ -226,28 +182,7 @@ void focustagmon(const Arg * arg)
 {
 	tagmon(arg);
 	focusmon(arg);
-}
-
-void movetotag(const Arg * arg)
-{
-	tag(arg);
-	view(arg);
-}
-
-
-void newtag(const Arg * arg)
-{
-	Arg a;
-	a.ui = freetag(0);
-	movetotag(&a);
-}
-
-void newtagspawn(const Arg * arg)
-{
-	Arg a;
-	a.ui = freetag(1);
-	view(&a);
-	spawn(arg);
+	applyrules(selmon->sel);
 }
 
 void mylayout(Monitor * m)
