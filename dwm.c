@@ -301,6 +301,7 @@ applyrules(Client *c)
 			if(r->tags) c->tags = r->tags;
 			selmon->tagset[selmon->seltags] |= r->tags;
 			focus(NULL);
+			restack(selmon);
 			arrange(selmon);
 			for (m = mons; m && m->num != r->monitor; m = m->next);
 			if (m)
