@@ -270,6 +270,7 @@ static Window root, wmcheckwin;
 
 /* configuration, allows nested code to access above variables */
 #include "config.h"
+#include "vwm.h"
 
 /* compile-time check if all tags fit into an unsigned int bit array. */
 struct NumTags { char limitexceeded[LENGTH(tags) > 31 ? -1 : 1]; };
@@ -1004,6 +1005,12 @@ keypress(XEvent *e)
 		&& CLEANMASK(keys[i].mod) == CLEANMASK(ev->state)
 		&& keys[i].func)
 			keys[i].func(&(keys[i].arg));
+
+	if(mode == Normal && keysym == XK_semicolon && CLEANMASK(ShiftMask) == CLEANMASK(ev->state))
+	{
+		CommandMode();
+	}
+	if(mode == Normal && keysym == XK_i)     InsertMode();
 }
 
 void
@@ -1658,6 +1665,7 @@ spawn(const Arg *arg)
 		perror(" failed");
 		exit(EXIT_SUCCESS);
 	}
+	InsertMode();
 }
 
 void
@@ -2150,6 +2158,7 @@ main(int argc, char *argv[])
 		die("pledge");
 #endif /* __OpenBSD__ */
 	scan();
+	NormalMode();
 	run();
 	cleanup();
 	XCloseDisplay(dpy);

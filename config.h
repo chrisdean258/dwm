@@ -28,6 +28,8 @@ static const char *colors[][3]      = {
 typedef int search_func(const char *, const char *);
 
 /* Custom function dcls */
+void norm(const Arg * arg);
+void NormalMode();
 void restart(const Arg * arg);
 void focustagmon(const Arg * arg);
 void mylayout(Monitor * m);
@@ -102,6 +104,7 @@ static Key keys[] = {
 	{ MODKEY,                       XK_l,      setmfact,       {.f = +0.05} },
 	{ MODKEY,                       XK_Tab,    view,           {0} },
 	{ MODKEY,                       XK_Escape, killclient,     {0} },
+	{ 0,                            XK_Escape, norm,           {0} },
 	{ MODKEY|ShiftMask,             XK_c,      killclient,     {0} },
 	{ MODKEY,                       XK_t,      setlayout,      {.v = &layouts[0]} },
 	{ MODKEY,                       XK_m,      setlayout,      {.v = &layouts[1]} },
@@ -173,6 +176,11 @@ void spawn_and_open(const char * name, search_func func, const Arg * command)
 		focus(c);
 		//zoom(&a);
 	}
+}
+
+void norm(const Arg * arg)
+{
+	NormalMode();
 }
 
 void restart(const Arg * arg)
