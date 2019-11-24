@@ -34,7 +34,8 @@ void grabkey(KeySym keysym)
 
 char * GetInputString()
 {
-	char * cmd = "echo -n | dmenu -b -p : -nb '#000' -nf '#FFF' -sf '#FFF' -sb '#000'";
+	char * cmd = "cat ~/.bash_history | grep '....' | sort | uniq -c | sort -nr | cut -d " " -f 8- | dmenu -b -p : -nb '#000' -nf '#FFF' -sf '#FFF' -sb '#000'";
+	cmd = "echo -n | dmenu -b -p : -nb '#000' -nf '#FFF' -sf '#FFF' -sb '#000'";
 	static char output[1024];
 	FILE * proc;
 
@@ -69,19 +70,28 @@ void InsertMode()
 	grabkey(XK_Escape);
 }
 
+void RunCommand(char * command)
+{
+	Arg a;
+	char buff[1024];
+
+	if(strcmp(command, "q") == 0) killclient(&a);
+	else
+	{
+		snprintf(buff, 1024, "source $HOME/.bash_aliases; %s", command);
+		a.v = (const char*[]){ "/bin/bash", "-c", buff, NULL };
+		spawn(&a);
+	}
+
+}
+
 void CommandMode()
 {
 	char * c;
-	Arg a;
 
 	if(mode == Command) return;
 	mode = Command;
 	c = GetInputString();
-	if(strcmp(c, "q") == 0) killclient(&a);
-	else
-	{
-		a.v = (const char*[]){ "/bin/sh", "-c", c, NULL };
-		spawn(&a);
-	}
+	RunCommand(c);
 	NormalMode();
 }

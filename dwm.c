@@ -803,6 +803,7 @@ focus(Client *c)
 		XSetWindowBorder(dpy, c->win, scheme[SchemeSel][ColBorder].pixel);
 		setfocus(c);
 	} else {
+		NormalMode();
 		XSetInputFocus(dpy, root, RevertToPointerRoot, CurrentTime);
 		XDeleteProperty(dpy, root, netatom[NetActiveWindow]);
 	}
@@ -1089,6 +1090,7 @@ manage(Window w, XWindowAttributes *wa)
 	arrange(c->mon);
 	XMapWindow(dpy, c->win);
 	focus(NULL);
+	InsertMode();
 }
 
 void
@@ -1665,7 +1667,6 @@ spawn(const Arg *arg)
 		perror(" failed");
 		exit(EXIT_SUCCESS);
 	}
-	InsertMode();
 }
 
 void
