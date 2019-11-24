@@ -963,12 +963,12 @@ grabkeys(void)
 		unsigned int modifiers[] = { 0, LockMask, numlockmask, numlockmask|LockMask };
 		KeyCode code;
 
-		XUngrabKey(dpy, AnyKey, AnyModifier, root);
+		/* XUngrabKey(dpy, AnyKey, AnyModifier, root);
 		for (i = 0; i < LENGTH(keys); i++)
 			if ((code = XKeysymToKeycode(dpy, keys[i].keysym)))
 				for (j = 0; j < LENGTH(modifiers); j++)
 					XGrabKey(dpy, code, keys[i].mod | modifiers[j], root,
-						True, GrabModeAsync, GrabModeAsync);
+						True, GrabModeAsync, GrabModeAsync); */
 	}
 }
 
@@ -1010,7 +1010,7 @@ keypress(XEvent *e)
 	{
 		CommandMode();
 	}
-	if(mode == Normal && keysym == XK_i)     InsertMode();
+	if(mode == Normal && keysym == XK_i) InsertMode();
 }
 
 void

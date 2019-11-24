@@ -38,12 +38,12 @@ char * GetInputString()
 	static char output[1024];
 	FILE * proc;
 
-	FILE * f = fopen("GetInputString", "w");
-	fclose(f);
-
 	ungrabkeyboard();
 	proc = popen(cmd, "r");
-	fgets(output, 1024, proc);
+	if(!proc || !fgets(output, 1024, proc))
+	{
+		perror("dmenu");
+	}
 	output[MAX(strlen(output) - 1, 0)] = '\0';
 	pclose(proc);
 	grabkeyboard();
@@ -67,7 +67,6 @@ void InsertMode()
 	mode = Insert;
 	ungrabkeyboard();
 	grabkey(XK_Escape);
-	grabkeys();
 }
 
 void CommandMode()
@@ -78,10 +77,10 @@ void CommandMode()
 	if(mode == Command) return;
 	mode = Command;
 	c = GetInputString();
-	if(strcmp(c, "q") == 0) running = 0;
-	if(c[0] == '!')
+	if(strcmp(c, "q") == 0) killclient(&a);
+	else
 	{
-		a.v = (const char*[]){ "/bin/sh", "-c", c+1, NULL };
+		a.v = (const char*[]){ "/bin/sh", "-c", c, NULL };
 		spawn(&a);
 	}
 	NormalMode();
