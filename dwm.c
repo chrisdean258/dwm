@@ -176,6 +176,7 @@ static void grabbuttons(Client *c, int focused);
 static void grabkeys(void);
 static void incnmaster(const Arg *arg);
 static void keypress(XEvent *e);
+static void keyrelease(XEvent *e);
 static void killclient(const Arg *arg);
 static void manage(Window w, XWindowAttributes *wa);
 static void mappingnotify(XEvent *e);
@@ -253,6 +254,7 @@ static void (*handler[LASTEvent]) (XEvent *) = {
 	[Expose] = expose,
 	[FocusIn] = focusin,
 	[KeyPress] = keypress,
+	[KeyRelease] = keyrelease,
 	[MappingNotify] = mappingnotify,
 	[MapRequest] = maprequest,
 	[MotionNotify] = motionnotify,
@@ -802,6 +804,7 @@ focus(Client *c)
 		grabbuttons(c, 1);
 		XSetWindowBorder(dpy, c->win, scheme[SchemeSel][ColBorder].pixel);
 		setfocus(c);
+		InsertMode();
 	} else {
 		NormalMode();
 		XSetInputFocus(dpy, root, RevertToPointerRoot, CurrentTime);
@@ -1012,6 +1015,22 @@ keypress(XEvent *e)
 		CommandMode();
 	}
 	if(mode == Normal && keysym == XK_i) InsertMode();
+}
+
+void
+keyrelease(XEvent *e)
+{
+	unsigned int i;
+	KeySym keysym;
+	XKeyEvent *ev;
+
+	ev = &e->xkey;
+	keysym = XKeycodeToKeysym(dpy, (KeyCode)ev->keycode, 0);
+	for (i = 0; i < LENGTH(keyup); i++)
+		if (keysym == keyup[i].keysym
+		&& CLEANMASK(keyup[i].mod) == CLEANMASK(ev->state)
+		&& keyup[i].func)
+			keyup[i].func(&(keyup[i].arg));
 }
 
 void

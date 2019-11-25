@@ -30,12 +30,13 @@ typedef int search_func(const char *, const char *);
 /* Custom function dcls */
 void norm(const Arg * arg);
 void NormalMode();
+void InsertMode();
 void restart(const Arg * arg);
 void focustagmon(const Arg * arg);
 void mylayout(Monitor * m);
 void handle_st(const Arg * arg);
 void handle_browser(const Arg * arg);
-void spawn_and_open(const char * name, search_func func, const Arg * command);
+void spawn_or_open(const char * name, search_func func, const Arg * command);
 Client * find_client_by_name(const char * name, search_func func);
 int strin(const char * a, const char *b);
 int streq(const char * a, const char *b);
@@ -90,16 +91,14 @@ static const char *termcmd[]  = { "st", NULL };
 
 static Key keys[] = {
 	/* modifier          key        function        argument */
-	{ 0,                 XK_p,      spawn,          {.v = dmenucmd } },
 	{ ShiftMask,         XK_t,      spawn,          {.v = termcmd } },
 	{ 0,                 XK_Return, handle_st,      {.v = termcmd } },
-	{ ShiftMask,         XK_Return, spawn,          {.v = termcmd } },
 	{ ControlMask,       XK_Return, zoom,           {0} },
 	{ 0,                 XK_b,      togglebar,      {0} },
 	{ 0,                 XK_j,      focusstack,     {.i = +1 } },
 	{ 0,                 XK_k,      focusstack,     {.i = -1 } },
-	{ 0,                 XK_h,      setmfact,       {.f = -0.05} },
-	{ 0,                 XK_l,      setmfact,       {.f = +0.05} },
+	{ 0,                 XK_h,      focusmon,       {.i = -1 } },
+	{ 0,                 XK_l,      focusmon,       {.i = +1 } },
 	{ 0,                 XK_Tab,    view,           {0} },
 	{ 0,                 XK_Escape, norm,           {0} },
 	{ ControlMask,       XK_c,      killclient,     {0} },
@@ -139,6 +138,10 @@ static Key keys[] = {
 	{ 0,                 XK_u,      spawn,          SHCMD("backlight -10") },
 };
 
+static Key keyup[] = {
+	{ 0,                 XK_Tab,    view,           {0} },
+};
+
 /* button definitions */
 /* click can be ClkTagBar, ClkLtSymbol, ClkStatusText, ClkWinTitle, ClkClientWin, or ClkRootWin */
 static Button buttons[] = {
@@ -149,8 +152,8 @@ static Button buttons[] = {
 
 int streq(const char * a, const char * b) { return !strcmp(a, b); }
 int strin(const char * a, const char *b) { return strstr(a, b) != NULL; }
-void handle_browser(const Arg* arg) { spawn_and_open("hrom", strin, arg); }
-void handle_st(const Arg* arg) { spawn_and_open("st", streq, arg); }
+void handle_browser(const Arg* arg) { spawn_or_open("hrom", strin, arg); }
+void handle_st(const Arg* arg) { spawn_or_open("st", streq, arg); }
 
 Client * find_client_by_name(const char * name, search_func func)
 {
@@ -159,7 +162,7 @@ Client * find_client_by_name(const char * name, search_func func)
 	return c;
 }
 
-void spawn_and_open(const char * name, search_func func, const Arg * command)
+void spawn_or_open(const char * name, search_func func, const Arg * command)
 {
 	Client * c;
 	Arg a;
@@ -171,7 +174,6 @@ void spawn_and_open(const char * name, search_func func, const Arg * command)
 		a.ui = c->tags;
 		toggleview(&a);
 		focus(c);
-		//zoom(&a);
 	}
 }
 
