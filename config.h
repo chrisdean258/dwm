@@ -102,7 +102,7 @@ static Key keys[] = {
 	{ 0,                 XK_l,      setmfact,       {.f = +0.05} },
 	{ 0,                 XK_Tab,    view,           {0} },
 	{ 0,                 XK_Escape, norm,           {0} },
-	{ ShiftMask,         XK_c,      killclient,     {0} },
+	{ ControlMask,       XK_c,      killclient,     {0} },;
 	{ 0,                 XK_t,      setlayout,      {.v = &layouts[0]} },
 	{ 0,                 XK_m,      setlayout,      {.v = &layouts[1]} },
 	{ 0,                 XK_s,      setlayout,      {.v = &layouts[2]} },
