@@ -28,7 +28,7 @@ void ungrabkeyboard()
 
 void grabkey(KeySym keysym)
 {
-	XGrabKey(dpy, XKeysymToKeycode(dpy, keysym), 0, root, True,
+	XGrabKey(dpy, XKeysymToKeycode(dpy, keysym), AnyModifier, root, True,
 		GrabModeAsync, GrabModeAsync);
 }
 
