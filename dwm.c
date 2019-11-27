@@ -804,7 +804,6 @@ focus(Client *c)
 		grabbuttons(c, 1);
 		XSetWindowBorder(dpy, c->win, scheme[SchemeSel][ColBorder].pixel);
 		setfocus(c);
-		InsertMode();
 	} else {
 		NormalMode();
 		XSetInputFocus(dpy, root, RevertToPointerRoot, CurrentTime);
