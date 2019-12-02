@@ -58,6 +58,7 @@ void NormalMode()
 	if(mode == Normal) return;
 
 	mode = Normal;
+	XAutoRepeatOff(dpy);
 	grabkeyboard();
 }
 
@@ -66,6 +67,7 @@ void InsertMode()
 	if(mode == Insert) return;
 
 	mode = Insert;
+	XAutoRepeatOn(dpy);
 	ungrabkeyboard();
 	grabkey(XK_Escape);
 }

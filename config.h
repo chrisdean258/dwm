@@ -76,10 +76,10 @@ static const Layout layouts[] = {
 /* alt + ctrl + shift to toggle a tage from view */
 #define MODKEY Mod1Mask
 #define TAGKEYS(KEY,TAG) \
-{ MODKEY,                       KEY,      view,           {.ui = 1 << TAG} }, \
-{ MODKEY|ControlMask,           KEY,      toggleview,     {.ui = 1 << TAG} }, \
-{ MODKEY|ShiftMask,             KEY,      tag,            {.ui = 1 << TAG} }, \
-{ MODKEY|ControlMask|ShiftMask, KEY,      toggletag,      {.ui = 1 << TAG} },
+{ 0,                     KEY,      view,           {.ui = 1 << TAG} }, \
+{ ControlMask,           KEY,      toggleview,     {.ui = 1 << TAG} }, \
+{ ShiftMask,             KEY,      tag,            {.ui = 1 << TAG} }, \
+{ ControlMask|ShiftMask, KEY,      toggletag,      {.ui = 1 << TAG} },
 
 /* helper for spawning shell commands in the pre dwm-5.0 fashion */
 #define SHCMD(cmd) { .v = (const char*[]){ "/bin/sh", "-c", cmd, NULL } }
@@ -143,8 +143,6 @@ static Key keys[] = {
 static Key keyup[] = {
 	{ 0,                 XK_Tab,    view,           {0} },
 };
-
-static int holddown[LENGTH(keyup)];
 
 /* button definitions */
 /* click can be ClkTagBar, ClkLtSymbol, ClkStatusText, ClkWinTitle, ClkClientWin, or ClkRootWin */
