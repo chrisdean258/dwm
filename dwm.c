@@ -994,6 +994,7 @@ isuniquegeom(XineramaScreenInfo *unique, size_t n, XineramaScreenInfo *info)
 }
 #endif /* XINERAMA */
 
+
 void
 keypress(XEvent *e)
 {
@@ -1003,6 +1004,16 @@ keypress(XEvent *e)
 
 	ev = &e->xkey;
 	keysym = XKeycodeToKeysym(dpy, (KeyCode)ev->keycode, 0);
+
+	for (i = 0; i < LENGTH(keyup); i++)
+		if (keysym == keyup[i].keysym
+			&& CLEANMASK(keyup[i].mod) == CLEANMASK(ev->state)
+			&& keyup[i].func)
+		{
+			if(holddown[i]) return;
+			holddown[i] = 1;
+		}
+
 	for (i = 0; i < LENGTH(keys); i++)
 		if (keysym == keys[i].keysym
 		&& CLEANMASK(keys[i].mod) == CLEANMASK(ev->state)
@@ -1027,9 +1038,12 @@ keyrelease(XEvent *e)
 	keysym = XKeycodeToKeysym(dpy, (KeyCode)ev->keycode, 0);
 	for (i = 0; i < LENGTH(keyup); i++)
 		if (keysym == keyup[i].keysym
-		&& CLEANMASK(keyup[i].mod) == CLEANMASK(ev->state)
-		&& keyup[i].func)
+			&& CLEANMASK(keyup[i].mod) == CLEANMASK(ev->state)
+			&& keyup[i].func)
+		{
 			keyup[i].func(&(keyup[i].arg));
+			holddown[i] = 0;
+		}
 }
 
 void

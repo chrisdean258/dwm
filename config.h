@@ -144,6 +144,8 @@ static Key keyup[] = {
 	{ 0,                 XK_Tab,    view,           {0} },
 };
 
+static int holddown[LENGTH(keyup)];
+
 /* button definitions */
 /* click can be ClkTagBar, ClkLtSymbol, ClkStatusText, ClkWinTitle, ClkClientWin, or ClkRootWin */
 static Button buttons[] = {
