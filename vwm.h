@@ -69,7 +69,7 @@ void InsertMode()
 	mode = Insert;
 	XAutoRepeatOn(dpy);
 	ungrabkeyboard();
-	grabkey(XK_Escape);
+	grabkey(XK_F11);
 }
 
 void RunCommand(char * command)
