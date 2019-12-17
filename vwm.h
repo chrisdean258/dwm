@@ -35,7 +35,7 @@ void grabkey(KeySym keysym)
 char * GetInputString()
 {
 	char * cmd = "cat ~/.bash_history | grep '....' | sort | uniq -c | sort -nr | cut -d " " -f 8- | dmenu -b -p : -nb '#000' -nf '#FFF' -sf '#FFF' -sb '#000'";
-	cmd = "echo -n | dmenu -b -p : -nb '#000' -nf '#FFF' -sf '#FFF' -sb '#000'";
+	cmd = "dmenu_path | dmenu --no-complete -b -p : -nb '#000' -nf '#FFF' -sf '#FFF' -sb '#000'";
 	static char output[1024];
 	FILE * proc;
 
