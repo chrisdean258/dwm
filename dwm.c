@@ -1687,7 +1687,6 @@ spawn(const Arg *arg)
 		perror(" failed");
 		exit(EXIT_SUCCESS);
 	}
-	InsertMode();
 }
 
 void

@@ -36,6 +36,7 @@ void focustagmon(const Arg * arg);
 void mylayout(Monitor * m);
 void handle_st(const Arg * arg);
 void handle_browser(const Arg * arg);
+void spawn_i(const Arg * arg);
 void spawn_or_open(const char * name, search_func func, const Arg * command);
 Client * find_client_by_name(const char * name, search_func func);
 int strin(const char * a, const char *b);
@@ -134,8 +135,8 @@ static Key keys[] = {
 	{ ShiftMask,         XK_q,      quit,           {0} },
 	{ 0,                 XK_v,      spawn,          SHCMD("vol -5%") },
 	{ ShiftMask,         XK_v,      spawn,          SHCMD("vol +5%") },
-	{ 0,                 XK_a,      spawn,          SHCMD("dmenu_audio") },
-	{ ShiftMask,         XK_b,      spawn,          SHCMD("dmenu_backlight") },
+	{ 0,                 XK_a,      spawn_i,        SHCMD("dmenu_audio") },
+	{ ShiftMask,         XK_b,      spawn_i,        SHCMD("dmenu_backlight") },
 	{ ShiftMask,         XK_u,      spawn,          SHCMD("backlight +10") },
 	{ 0,                 XK_u,      spawn,          SHCMD("backlight -10") },
 };

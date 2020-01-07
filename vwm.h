@@ -5,6 +5,12 @@
 typedef enum Mode { Normal, Insert, Command } Mode;
 Mode mode = Command;
 
+void spawn_i(const Arg * arg)
+{
+	InsertMode();
+	spawn(arg);
+}
+
 void grabkeyboard()
 {
 	struct timespec ts = { .tv_sec = 0, .tv_nsec = 1000000 };
