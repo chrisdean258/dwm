@@ -41,6 +41,7 @@ void spawn_or_open(const char * name, search_func func, const Arg * command);
 Client * find_client_by_name(const char * name, search_func func);
 int strin(const char * a, const char *b);
 int streq(const char * a, const char *b);
+void check_battery();
 
 
 /* tagging */
@@ -201,4 +202,17 @@ void mylayout(Monitor * m)
 {
 	if(m == selmon) monocle(m);
 	else tile(m);
+}
+
+void check_battery()
+{
+	static int old_battery_low = 0;
+	int new_battery_low;
+
+	new_battery_low = !system("low-battery");
+	if(new_battery_low && !old_battery_low)
+	{
+		system("notify-send \"Battery Low\"");
+	}
+	old_battery_low = new_battery_low;
 }
