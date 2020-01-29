@@ -30,7 +30,6 @@ typedef int search_func(const char *, const char *);
 /* Custom function dcls */
 void restart(const Arg * arg);
 void focustagmon(const Arg * arg);
-void mylayout(Monitor * m);
 void handle_st(const Arg * arg);
 void handle_browser(const Arg * arg);
 void spawn_and_open(const char * name, search_func func, const Arg * command);
@@ -62,7 +61,6 @@ static const Layout layouts[] = {
 	/* symbol     arrange function */
 	{ "[]=",      tile },    /* first entry is default */
 	{ "[M]",      monocle },
-	{ "[0]",      mylayout }, /* first entry is default */
 	{ "><>",      NULL },    /* no layout function means floating behavior */
 };
 
@@ -98,15 +96,14 @@ static Key keys[] = {
 	{ MODKEY,                       XK_k,      focusstack,     {.i = -1 } },
 	{ MODKEY,                       XK_i,      incnmaster,     {.i = +1 } },
 	{ MODKEY,                       XK_d,      incnmaster,     {.i = -1 } },
-	{ MODKEY,                       XK_h,      setmfact,       {.f = -0.05} },
-	{ MODKEY,                       XK_l,      setmfact,       {.f = +0.05} },
+	{ MODKEY,                       XK_y,      setmfact,       {.f = -0.05} },
+	{ MODKEY|ShiftMask,             XK_y,      setmfact,       {.f = +0.05} },
 	{ MODKEY,                       XK_Tab,    view,           {0} },
 	{ MODKEY,                       XK_Escape, killclient,     {0} },
 	{ MODKEY|ShiftMask,             XK_c,      killclient,     {0} },
 	{ MODKEY,                       XK_t,      setlayout,      {.v = &layouts[0]} },
 	{ MODKEY,                       XK_m,      setlayout,      {.v = &layouts[1]} },
-	{ MODKEY,                       XK_s,      setlayout,      {.v = &layouts[2]} },
-	{ MODKEY,                       XK_f,      setlayout,      {.v = &layouts[3]} },
+	{ MODKEY,                       XK_f,      setlayout,      {.v = &layouts[2]} },
 	{ MODKEY,                       XK_space,  setlayout,      {0} },
 	{ MODKEY|ShiftMask,             XK_space,  togglefloating, {0} },
 	{ MODKEY,                       XK_0,      view,           {.ui = 0 } },
@@ -187,8 +184,3 @@ void focustagmon(const Arg * arg)
 	applyrules(selmon->sel);
 }
 
-void mylayout(Monitor * m)
-{
-	if(m == selmon) monocle(m);
-	else tile(m);
-}
