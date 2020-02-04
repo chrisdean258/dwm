@@ -2146,6 +2146,10 @@ zoom(const Arg *arg)
 	pop(c);
 }
 
+void handle_restart(int dummy) {
+	restart(NULL);
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -2159,6 +2163,7 @@ main(int argc, char *argv[])
 		die("dwm: cannot open display");
 	checkotherwm();
 	setup();
+	signal(SIGHUP, handle_restart);
 #ifdef __OpenBSD__
 	if (pledge("stdio rpath proc exec", NULL) == -1)
 		die("pledge");
