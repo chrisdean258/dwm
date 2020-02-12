@@ -267,6 +267,7 @@ static Display *dpy;
 static Drw *drw;
 static Monitor *mons, *selmon;
 static Window root, wmcheckwin;
+static char ** exec_command;
 
 /* configuration, allows nested code to access above variables */
 #include "config.h"
@@ -2155,8 +2156,8 @@ main(int argc, char *argv[])
 {
 	if (argc == 2 && !strcmp("-v", argv[1]))
 		die("dwm-"VERSION);
-	else if (argc != 1)
-		die("usage: dwm [-v]");
+	/* else if (argc != 1)
+		die("usage: dwm [-v]"); */
 	if (!setlocale(LC_CTYPE, "") || !XSupportsLocale())
 		fputs("warning: no locale support\n", stderr);
 	if (!(dpy = XOpenDisplay(NULL)))
@@ -2164,6 +2165,8 @@ main(int argc, char *argv[])
 	checkotherwm();
 	setup();
 	signal(SIGHUP, handle_restart);
+	exec_command = argv;
+	if (argc > 1) exec_command = argv + 1;
 #ifdef __OpenBSD__
 	if (pledge("stdio rpath proc exec", NULL) == -1)
 		die("pledge");

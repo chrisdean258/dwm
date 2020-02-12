@@ -22,13 +22,15 @@ static const char col_black[]       = "#000000";
 static const char col_red[]         = "#ff0000";
 static const char col_yellow[]      = "#ffff00";
 static const char col_white[]       = "#ffffff";
+static const char col_green[]       = "#4E9A06";
 static const char *colors[][3]      = {
 	/*               fg         bg         border   */
-	[SchemeNorm] = { col_gray3, col_black, col_gray2 },
-	[SchemeSel]  = { col_gray4, col_black,  col_cyan  },
-	[SchemeWarn] =	 { col_black, col_yellow, col_red },
-	[SchemeUrgent]=	 { col_white, col_red,    col_red },
-	[4] =          { col_red,   col_black, col_gray2  },
+	[SchemeNorm]   = { col_gray3, col_black, col_gray2 },
+	[SchemeSel]    = { col_gray4, col_black,  col_cyan  },
+	[SchemeWarn]   = { col_black, col_yellow, col_red },
+	[SchemeUrgent] = { col_white, col_red,    col_red },
+	[4]            = { col_red,   col_black, col_gray2  },
+	[5]            = { col_green, col_black, col_gray2  },
 };
 
 typedef int search_func(const char *, const char *);
@@ -93,7 +95,7 @@ static const char *termcmd[]  = { "st", NULL };
 static Key keys[] = {
 	/* modifier                     key           function        argument */
 	{ MODKEY,                       XK_p,         spawn,          {.v = dmenucmd } },
-	{ MODKEY|ShiftMask,             XK_semicolon, spawn,          SHCMD("dmenu_runb") },
+	{ MODKEY|ShiftMask,             XK_semicolon, spawn,          SHCMD("dmenu_run") },
 	{ MODKEY|ShiftMask,             XK_t,         spawn,          {.v = termcmd } },
 	{ MODKEY,                       XK_Return,    handle_st,      {.v = termcmd } },
 	{ MODKEY|ShiftMask,             XK_Return,    spawn,          {.v = termcmd } },
@@ -181,7 +183,7 @@ void spawn_and_open(const char * name, search_func func, const Arg * command)
 
 void restart(const Arg * arg)
 {
-	execvp("dwm", (char * const[]) { "dwm", NULL } );
+	execvp(exec_command[0], exec_command);
 }
 
 void focustagmon(const Arg * arg)
