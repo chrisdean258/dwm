@@ -125,7 +125,7 @@ static Key keys[] = {
 	{ MODKEY|ControlMask,           XK_comma,     tagmon,         {.i = -1 } },
 	{ MODKEY|ControlMask,           XK_period,    tagmon,         {.i = +1 } },
 	{ MODKEY,                       XK_g,         handle_browser, SHCMD("browser") },
-	{ MODKEY,                       XK_o,         spawn,          SHCMD("monitor detect") },
+	{ MODKEY,                       XK_o,         spawn,          SHCMD("monitor") },
 	{ MODKEY,                       XK_r,         restart,        {0} },
 	TAGKEYS(                        XK_1,                         0)
 	TAGKEYS(                        XK_2,                         1)
