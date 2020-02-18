@@ -167,7 +167,7 @@ void setmfact_rel(const Arg * a)
 	int i;
 
 	if(!selmon || !selmon->sel) return;
-	for (i = 0, c = nexttiled(selmon->clients); c; c = nexttiled(c->next), i++)
+	for (i = 0, c = nexttiled(selmon->clients); c && i < selmon->nmaster; c = nexttiled(c->next), i++)
 	{
 		if(selmon->sel == c)
 		{
