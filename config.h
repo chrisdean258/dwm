@@ -37,6 +37,7 @@ typedef int search_func(const char *, const char *);
 
 /* Custom function dcls */
 void restart(const Arg * arg);
+void setmfact_rel(const Arg * a);
 void focustagmon(const Arg * arg);
 void handle_st(const Arg * arg);
 void handle_browser(const Arg * arg);
@@ -105,8 +106,8 @@ static Key keys[] = {
 	{ MODKEY,                       XK_k,         focusstack,     {.i = -1 } },
 	{ MODKEY,                       XK_i,         incnmaster,     {.i = +1 } },
 	{ MODKEY,                       XK_d,         incnmaster,     {.i = -1 } },
-	{ MODKEY,                       XK_y,         setmfact,       {.f = -0.05} },
-	{ MODKEY|ShiftMask,             XK_y,         setmfact,       {.f = +0.05} },
+	{ MODKEY,                       XK_y,         setmfact_rel,   {.f = -0.05} },
+	{ MODKEY|ShiftMask,             XK_y,         setmfact_rel,   {.f = +0.05} },
 	{ MODKEY,                       XK_Tab,       view,           {0} },
 	{ MODKEY,                       XK_Escape,    killclient,     {0} },
 	{ MODKEY|ShiftMask,             XK_c,         killclient,     {0} },
@@ -143,6 +144,7 @@ static Key keys[] = {
 	{ MODKEY|ShiftMask,             XK_b,         spawn,          SHCMD("dmenu_backlight") },
 	{ MODKEY|ShiftMask,             XK_u,         spawn,          SHCMD("backlight +10") },
 	{ MODKEY,                       XK_u,         spawn,          SHCMD("backlight -10") },
+	{ MODKEY,                       XK_F5,        spawn,          SHCMD("audio toggle") },
 };
 
 /* button definitions */
@@ -157,6 +159,25 @@ int streq(const char * a, const char * b) { return !strcmp(a, b); }
 int strin(const char * a, const char *b) { return strstr(a, b) != NULL; }
 void handle_browser(const Arg* arg) { spawn_and_open("hrom", strin, arg); }
 void handle_st(const Arg* arg) { spawn_and_open("st", streq, arg); }
+
+void setmfact_rel(const Arg * a)
+{
+	Arg b;
+	Client * c;
+	int i;
+
+	if(!selmon || !selmon->sel) return;
+	for (i = 0, c = nexttiled(selmon->clients); c; c = nexttiled(c->next), i++)
+	{
+		if(selmon->sel == c)
+		{
+			setmfact(a);
+			return;
+		}
+	}
+	b.f = -a->f;
+	setmfact(&b);
+}
 
 Client * find_client_by_name(const char * name, search_func func)
 {
