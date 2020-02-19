@@ -198,7 +198,7 @@ void spawn_and_open(const char * name, search_func func, const Arg * command)
 		a.ui = c->tags;
 		toggleview(&a);
 		focus(c);
-		//zoom(&a);
+		if(selmon->lt[selmon->sellt] == &layouts[1]) zoom(&a);
 	}
 }
 
