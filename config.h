@@ -41,8 +41,8 @@ void setmfact_rel(const Arg * a);
 void focustagmon(const Arg * arg);
 void handle_st(const Arg * arg);
 void handle_browser(const Arg * arg);
-void spawn_and_open(const char * name, search_func func, const Arg * command);
-Client * find_client_by_name(const char * name, search_func func);
+void spawn_and_open(const char * name, search_func func, const Arg * command, int tag);
+Client * find_client_by_name(const char * name, search_func func, int tag);
 int strin(const char * a, const char *b);
 int streq(const char * a, const char *b);
 
@@ -141,6 +141,7 @@ static Key keys[] = {
 	{ MODKEY,                       XK_v,         spawn,          SHCMD("vol -5%") },
 	{ MODKEY|ShiftMask,             XK_v,         spawn,          SHCMD("vol +5%") },
 	{ MODKEY,                       XK_a,         spawn,          SHCMD("dmenu_audio") },
+	{ MODKEY|ShiftMask,             XK_a,         spawn,          SHCMD("audio") },
 	{ MODKEY|ShiftMask,             XK_b,         spawn,          SHCMD("dmenu_backlight") },
 	{ MODKEY|ShiftMask,             XK_u,         spawn,          SHCMD("backlight +10") },
 	{ MODKEY,                       XK_u,         spawn,          SHCMD("backlight -10") },
@@ -157,8 +158,8 @@ static Button buttons[] = {
 
 int streq(const char * a, const char * b) { return !strcmp(a, b); }
 int strin(const char * a, const char *b) { return strstr(a, b) != NULL; }
-void handle_browser(const Arg* arg) { spawn_and_open("hrom", strin, arg); }
-void handle_st(const Arg* arg) { spawn_and_open("st", streq, arg); }
+void handle_browser(const Arg* arg) { spawn_and_open("hrom", strin, arg, 1<<8); }
+void handle_st(const Arg* arg) { spawn_and_open("st", streq, arg, 1<<7); }
 
 void setmfact_rel(const Arg * a)
 {
@@ -179,19 +180,22 @@ void setmfact_rel(const Arg * a)
 	setmfact(&b);
 }
 
-Client * find_client_by_name(const char * name, search_func func)
+Client * find_client_by_name(const char * name, search_func func, int tag)
 {
 	Client * c;
-	for(c = selmon->clients; c && !func(c->name, name); c = c->next);
+	for(c = selmon->clients; c; c = c->next)
+	{
+		if(func(c->name, name) && (c->tags & tag)) break;
+	}
 	return c;
 }
 
-void spawn_and_open(const char * name, search_func func, const Arg * command)
+void spawn_and_open(const char * name, search_func func, const Arg * command, int tag)
 {
 	Client * c;
 	Arg a;
 
-	c = find_client_by_name(name, func);
+	c = find_client_by_name(name, func, tag);
 	if(!c) spawn(command);
 	else
 	{
@@ -204,7 +208,11 @@ void spawn_and_open(const char * name, search_func func, const Arg * command)
 
 void restart(const Arg * arg)
 {
-	execvp(exec_command[0], exec_command);
+	execvp("dwm", (char * const[]){"dwm", NULL});
+}
+
+void handle_restart(int dummy) {
+	restart(NULL);
 }
 
 void focustagmon(const Arg * arg)

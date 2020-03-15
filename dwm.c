@@ -267,7 +267,6 @@ static Display *dpy;
 static Drw *drw;
 static Monitor *mons, *selmon;
 static Window root, wmcheckwin;
-static char ** exec_command;
 
 /* configuration, allows nested code to access above variables */
 #include "config.h"
@@ -299,8 +298,8 @@ applyrules(Client *c)
 		&& (!r->instance || strstr(instance, r->instance)))
 		{
 			c->isfloating = r->isfloating;
-			if(r->tags) c->tags = r->tags;
-			selmon->tagset[selmon->seltags] |= r->tags;
+			if(r->tags) c->tags = r->tags; // CD: Just set tags. Dont or in
+			selmon->tagset[selmon->seltags] |= r->tags; // CD: Display rule tags and redisplay screen
 			focus(NULL);
 			restack(selmon);
 			arrange(selmon);
@@ -429,7 +428,7 @@ buttonpress(XEvent *e)
 
 	click = ClkRootWin;
 	/* focus monitor if necessary */
-	if (0 && (m = wintomon(ev->window)) && m != selmon) {
+	if ((m = wintomon(ev->window)) && m != selmon) {
 		unfocus(selmon->sel, 1);
 		selmon = m;
 		focus(NULL);
@@ -449,8 +448,8 @@ buttonpress(XEvent *e)
 		else
 			click = ClkWinTitle;
 	} else if ((c = wintoclient(ev->window))) {
-		/* focus(c); */
-		/* restack(selmon); */
+		focus(c);
+		restack(selmon);
 		XAllowEvents(dpy, ReplayPointer, CurrentTime);
 		click = ClkClientWin;
 	}
@@ -750,7 +749,7 @@ drawbar(Monitor *m)
 	if ((w = m->ww - sw - x) > bh) {
 		if (m->sel) {
 			drw_setscheme(drw, scheme[m == selmon ? SchemeSel : SchemeNorm]);
-			drw_text(drw, x, 0, w, bh, lrpad / 2, "", 0);
+			drw_text(drw, x, 0, w, bh, lrpad / 2, "", 0); // CD : I dont want the name
 			if (m->sel->isfloating)
 				drw_rect(drw, x + boxs, boxs, boxw, boxw, m->sel->isfixed, 0);
 		} else {
@@ -822,7 +821,6 @@ focus(Client *c)
 	}
 	selmon->sel = c;
 	drawbars();
-	arrange(NULL);
 }
 
 /* there are some broken focus acquiring clients needing extra handling */
@@ -839,17 +837,14 @@ void
 focusmon(const Arg *arg)
 {
 	Monitor *m;
-	Monitor* old_selmon;
 
 	if (!mons->next)
 		return;
 	if ((m = dirtomon(arg->i)) == selmon)
 		return;
 	unfocus(selmon->sel, 0);
-	old_selmon = selmon;
 	selmon = m;
 	focus(NULL);
-	restack(old_selmon);
 }
 
 void
@@ -2147,17 +2142,13 @@ zoom(const Arg *arg)
 	pop(c);
 }
 
-void handle_restart(int dummy) {
-	restart(NULL);
-}
-
 int
 main(int argc, char *argv[])
 {
 	if (argc == 2 && !strcmp("-v", argv[1]))
 		die("dwm-"VERSION);
-	/* else if (argc != 1)
-		die("usage: dwm [-v]"); */
+	else if (argc != 1)
+		die("usage: dwm [-v]");
 	if (!setlocale(LC_CTYPE, "") || !XSupportsLocale())
 		fputs("warning: no locale support\n", stderr);
 	if (!(dpy = XOpenDisplay(NULL)))
@@ -2165,8 +2156,6 @@ main(int argc, char *argv[])
 	checkotherwm();
 	setup();
 	signal(SIGHUP, handle_restart);
-	exec_command = argv;
-	if (argc > 1) exec_command = argv + 1;
 #ifdef __OpenBSD__
 	if (pledge("stdio rpath proc exec", NULL) == -1)
 		die("pledge");
