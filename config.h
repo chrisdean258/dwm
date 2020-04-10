@@ -3,7 +3,7 @@
 /* appearance */
 static const unsigned int borderpx  = 0;        /* border pixel of windows */
 static const unsigned int snap      = 32;       /* snap pixel */
-static const int showbar            = 1;        /* 0 means no bar */
+static const int showbar            = 0;        /* 0 means no bar */
 static const int topbar             = 0;        /* 0 means bottom bar */
 static const int focusonwheel       = 0;        /* 0 no focus on wheel */
 #ifndef HD
@@ -48,7 +48,7 @@ int streq(const char * a, const char *b);
 
 
 /* tagging */
-static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+static const char *tags[] = { "1", "2" };
 
 static const Rule rules[] = {
 	/* xprop(1):
@@ -56,9 +56,10 @@ static const Rule rules[] = {
 	 *	WM_NAME(STRING) = title
 	 */
 	/* class               instance    title       tags mask     isfloating   monitor */
-	{ "hrom",              NULL,       NULL,       1 << 8,       0,           -1 }, /* Chrome */
+	{ "hromsdfsd",         NULL,       NULL,       1 << 0,       0,           -1 }, /* Chrome */
+	/* { "hrom",           NULL,       NULL,       1 << 8,       0,           -1 },
 	{ "st-256color",       NULL,       NULL,       1 << 7,       0,           -1 },
-	{ "Zathura",           NULL,       NULL,       1 << 6,       0,           -1 },
+	{ "Zathura",           NULL,       NULL,       1 << 6,       0,           -1 }, */
 };
 
 /* layout(s) */
@@ -108,7 +109,8 @@ static Key keys[] = {
 	{ MODKEY,                       XK_d,         incnmaster,     {.i = -1 } },
 	{ MODKEY,                       XK_y,         setmfact_rel,   {.f = -0.05} },
 	{ MODKEY|ShiftMask,             XK_y,         setmfact_rel,   {.f = +0.05} },
-	{ MODKEY,                       XK_Tab,       view,           {0} },
+	{ MODKEY,                       XK_Tab,       toggleview,     {.ui = ~0} },
+	{ MODKEY|ShiftMask,             XK_Tab,       toggletag,      {.ui = ~0} },
 	{ MODKEY,                       XK_Escape,    killclient,     {0} },
 	{ MODKEY|ShiftMask,             XK_c,         killclient,     {0} },
 	{ MODKEY,                       XK_t,         setlayout,      {.v = &layouts[0]} },
