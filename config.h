@@ -1,8 +1,7 @@
 /* See LICENSE file for copyright and license details. */
 
 /* appearance */
-static const unsigned int borderpx  = 0;        /* border pixel of windows */
-static const unsigned int snap      = 32;       /* snap pixel */
+static const unsigned int borderpx  = 0;        /* border pixel of windows */ static const unsigned int snap      = 32;       /* snap pixel */
 static const int showbar            = 0;        /* 0 means no bar */
 static const int topbar             = 0;        /* 0 means bottom bar */
 static const int focusonwheel       = 0;        /* 0 no focus on wheel */
@@ -128,7 +127,7 @@ static Key keys[] = {
 	{ MODKEY|ControlMask,           XK_comma,     tagmon,         {.i = -1 } },
 	{ MODKEY|ControlMask,           XK_period,    tagmon,         {.i = +1 } },
 	{ MODKEY,                       XK_g,         handle_browser, SHCMD("browser") },
-	{ MODKEY,                       XK_o,         spawn,          SHCMD("monitor") },
+	{ MODKEY,                       XK_o,         spawn,          SHCMD("monitor --no4k") },
 	{ MODKEY,                       XK_r,         restart,        {0} },
 	TAGKEYS(                        XK_1,                         0)
 	TAGKEYS(                        XK_2,                         1)
@@ -147,7 +146,7 @@ static Key keys[] = {
 	{ MODKEY|ShiftMask,             XK_b,         spawn,          SHCMD("dmenu_backlight") },
 	{ MODKEY|ShiftMask,             XK_u,         spawn,          SHCMD("backlight +10") },
 	{ MODKEY,                       XK_u,         spawn,          SHCMD("backlight -10") },
-	{ MODKEY,                       XK_F5,        spawn,          SHCMD("audio toggle") },
+	{ MODKEY,                       XK_F5,        spawn,          SHCMD("playerctl play-pause") },
 };
 
 /* button definitions */
