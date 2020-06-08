@@ -26,10 +26,6 @@ static const char *colors[][3]      = {
 	/*               fg         bg         border   */
 	[SchemeNorm]   = { col_gray3, col_black, col_gray2 },
 	[SchemeSel]    = { col_gray4, col_black,  col_cyan  },
-	[SchemeWarn]   = { col_black, col_yellow, col_red },
-	[SchemeUrgent] = { col_white, col_red,    col_red },
-	[4]            = { col_red,   col_black, col_gray2  },
-	[5]            = { col_green, col_black, col_gray2  },
 };
 
 typedef int search_func(const char *, const char *);
@@ -38,9 +34,6 @@ typedef int search_func(const char *, const char *);
 void restart(const Arg * arg);
 void setmfact_rel(const Arg * a);
 void focustagmon(const Arg * arg);
-void handle_st(const Arg * arg);
-void handle_browser(const Arg * arg);
-void spawn_and_open(const char * name, search_func func, const Arg * command, int tag);
 Client * find_client_by_name(const char * name, search_func func, int tag);
 int strin(const char * a, const char *b);
 int streq(const char * a, const char *b);
@@ -55,10 +48,7 @@ static const Rule rules[] = {
 	 *	WM_NAME(STRING) = title
 	 */
 	/* class               instance    title       tags mask     isfloating   monitor */
-	{ "hromsdfsd",         NULL,       NULL,       1 << 0,       0,           -1 }, /* Chrome */
-	/* { "hrom",           NULL,       NULL,       1 << 8,       0,           -1 },
-	{ "st-256color",       NULL,       NULL,       1 << 7,       0,           -1 },
-	{ "Zathura",           NULL,       NULL,       1 << 6,       0,           -1 }, */
+	{ "hromsdfsd",         NULL,       NULL,       1 << 0,       0,           -1 },
 };
 
 /* layout(s) */
@@ -100,7 +90,7 @@ static Key keys[] = {
 	{ MODKEY,                       XK_b,         togglebar,      {0} },
 	{ MODKEY|ShiftMask,             XK_b,         spawn,          SHCMD("bt") },
 	{ MODKEY|ShiftMask,             XK_c,         killclient,     {0} },
-	{ MODKEY,                       XK_g,         handle_browser, SHCMD("browser") },
+	{ MODKEY,                       XK_g,         spawn,          SHCMD("browser") },
 	{ MODKEY,                       XK_p,         spawn,          {.v = dmenucmd } },
 	{ MODKEY,                       XK_f,         setlayout,      {.v = &layouts[2]} },
 	{ MODKEY|ShiftMask,             XK_i,         incnmaster,     {.i = +1 } },
@@ -117,8 +107,8 @@ static Key keys[] = {
 	{ MODKEY,                       XK_u,         spawn,          SHCMD("backlight -10") },
 	{ MODKEY,                       XK_v,         spawn,          SHCMD("vol -5%") },
 	{ MODKEY|ShiftMask,             XK_v,         spawn,          SHCMD("vol +5%") },
-	{ MODKEY,                       XK_y,         setmfact_rel,   {.f = -0.05} },
-	{ MODKEY|ShiftMask,             XK_y,         setmfact_rel,   {.f = +0.05} },
+	{ MODKEY,                       XK_y,         setmfact,       {.f = -0.05} },
+	{ MODKEY|ShiftMask,             XK_y,         setmfact,       {.f = +0.05} },
 	{ MODKEY,                       XK_comma,     focusmon,       {.i = -1 } },
 	{ MODKEY|ControlMask,           XK_comma,     tagmon,         {.i = -1 } },
 	{ MODKEY|ShiftMask,             XK_comma,     focustagmon,    {.i = -1 } },
@@ -126,8 +116,7 @@ static Key keys[] = {
 	{ MODKEY,                       XK_period,    focusmon,       {.i = +1 } },
 	{ MODKEY|ControlMask,           XK_period,    tagmon,         {.i = +1 } },
 	{ MODKEY|ShiftMask,             XK_period,    focustagmon,    {.i = +1 } },
-	{ MODKEY,                       XK_Return,    handle_st,      {.v = termcmd } },
-	{ MODKEY|ShiftMask,             XK_Return,    spawn,          {.v = termcmd } },
+	{ MODKEY,                       XK_Return,    spawn,          {.v = termcmd } },
 	{ MODKEY|ControlMask,           XK_Return,    zoom,           {0} },
 	{ MODKEY|ShiftMask,             XK_semicolon, spawn,          SHCMD("dmenu_run") },
 	{ MODKEY,                       XK_space,     setlayout,      {0} },
@@ -149,63 +138,10 @@ static Button buttons[] = {
 	{ ClkClientWin,         MODKEY,         Button3,        resizemouse,    {0} },
 };
 
-int streq(const char * a, const char * b) { return !strcmp(a, b); }
-int strin(const char * a, const char *b) { return strstr(a, b) != NULL; }
-void handle_browser(const Arg* arg) { spawn_and_open("hrom", strin, arg, 1<<8); }
-void handle_st(const Arg* arg) { spawn_and_open("st", streq, arg, 1<<7); }
-
-void setmfact_rel(const Arg * a)
-{
-	Arg b;
-	Client * c;
-	int i;
-
-	if(!selmon || !selmon->sel) return;
-	for (i = 0, c = nexttiled(selmon->clients); c && i < selmon->nmaster; c = nexttiled(c->next), i++)
-	{
-		if(selmon->sel == c)
-		{
-			setmfact(a);
-			return;
-		}
-	}
-	b.f = -a->f;
-	setmfact(&b);
-}
-
-Client * find_client_by_name(const char * name, search_func func, int tag)
-{
-	Client * c;
-	for(c = selmon->clients; c; c = c->next)
-	{
-		if(func(c->name, name) && (c->tags & tag)) break;
-	}
-	return c;
-}
-
-void spawn_and_open(const char * name, search_func func, const Arg * command, int tag)
-{
-	Client * c;
-	Arg a;
-
-	c = find_client_by_name(name, func, tag);
-	if(!c) spawn(command);
-	else
-	{
-		a.ui = c->tags;
-		toggleview(&a);
-		focus(c);
-		if(selmon->lt[selmon->sellt] == &layouts[1]) zoom(&a);
-	}
-}
 
 void restart(const Arg * arg)
 {
 	execvp("dwm", (char * const[]){"dwm", NULL});
-}
-
-void handle_restart(int dummy) {
-	restart(NULL);
 }
 
 void focustagmon(const Arg * arg)
