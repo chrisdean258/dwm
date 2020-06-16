@@ -1411,8 +1411,14 @@ scan(void)
 void
 sendmon(Client *c, Monitor *m)
 {
+	int wasfull;
+	wasfull = 0;
 	if (c->mon == m)
 		return;
+	if (c->isfullscreen) {
+		wasfull = 1;
+		setfullscreen(c, 0);
+	}
 	unfocus(c, 1);
 	detach(c);
 	detachstack(c);
@@ -1420,6 +1426,8 @@ sendmon(Client *c, Monitor *m)
 	c->tags = m->tagset[m->seltags]; /* assign tags of target monitor */
 	attach(c);
 	attachstack(c);
+	if (wasfull)
+		setfullscreen(c, 1);
 	focus(NULL);
 	arrange(NULL);
 }

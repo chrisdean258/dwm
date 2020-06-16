@@ -91,6 +91,7 @@ static Key keys[] = {
 	{ MODKEY|ShiftMask,             XK_b,         spawn,          SHCMD("bt") },
 	{ MODKEY|ShiftMask,             XK_c,         killclient,     {0} },
 	{ MODKEY,                       XK_g,         spawn,          SHCMD("browser") },
+	{ MODKEY|ShiftMask,             XK_g,         spawn,          SHCMD("browser --incognito") },
 	{ MODKEY,                       XK_p,         spawn,          {.v = dmenucmd } },
 	{ MODKEY,                       XK_f,         setlayout,      {.v = &layouts[2]} },
 	{ MODKEY|ShiftMask,             XK_i,         incnmaster,     {.i = +1 } },
