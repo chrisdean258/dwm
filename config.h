@@ -1,7 +1,8 @@
 /* See LICENSE file for copyright and license details. */
 
 /* appearance */
-static const unsigned int borderpx  = 0;        /* border pixel of windows */ static const unsigned int snap      = 32;       /* snap pixel */
+static const unsigned int borderpx  = 1;        /* border pixel of windows */
+static const unsigned int snap      = 32;       /* snap pixel */
 static const int showbar            = 0;        /* 0 means no bar */
 static const int topbar             = 0;        /* 0 means bottom bar */
 static const int focusonwheel       = 0;        /* 0 no focus on wheel */
@@ -12,11 +13,11 @@ static const char dmenufont[]       = "monospace:size=10";
 static const char *fonts[]          = { "monospace:size=16" };
 static const char dmenufont[]       = "monospace:size=16";
 #endif
-static const char col_gray1[]       = "#222222";
-static const char col_gray2[]       = "#444444";
-static const char col_gray3[]       = "#bbbbbb";
-static const char col_gray4[]       = "#eeeeee";
-static const char col_cyan[]        = "#005577";
+static const char col_gray1[]       = "#111111";
+static const char col_gray2[]       = "#222222";
+static const char col_gray3[]       = "#5d5d5d";
+static const char col_gray4[]       = "#777777";
+static const char col_cyan[]        = "#002a3b";
 static const char col_black[]       = "#000000";
 static const char col_red[]         = "#ff0000";
 static const char col_yellow[]      = "#ffff00";
@@ -37,6 +38,7 @@ void focustagmon(const Arg * arg);
 Client * find_client_by_name(const char * name, search_func func, int tag);
 int strin(const char * a, const char *b);
 int streq(const char * a, const char *b);
+static void tile_alt(Monitor * m);
 
 
 /* tagging */
@@ -58,7 +60,7 @@ static const int resizehints = 0;    /* 1 means respect size hints in tiled resi
 
 static const Layout layouts[] = {
 	/* symbol     arrange function */
-	{ "[]=",      tile },    /* first entry is default */
+	{ "[]=",      tile_alt },    /* first entry is default */
 	{ "[M]",      monocle },
 	{ "><>",      NULL },    /* no layout function means floating behavior */
 };
@@ -90,6 +92,7 @@ static Key keys[] = {
 	{ MODKEY,                       XK_b,         togglebar,      {0} },
 	{ MODKEY|ShiftMask,             XK_b,         spawn,          SHCMD("bt") },
 	{ MODKEY|ShiftMask,             XK_c,         killclient,     {0} },
+	{ MODKEY,                       XK_d,         spawn,          SHCMD("discord") },
 	{ MODKEY,                       XK_g,         spawn,          SHCMD("browser") },
 	{ MODKEY|ShiftMask,             XK_g,         spawn,          SHCMD("browser --incognito") },
 	{ MODKEY,                       XK_p,         spawn,          {.v = dmenucmd } },
@@ -152,3 +155,14 @@ void focustagmon(const Arg * arg)
 	applyrules(selmon->sel);
 }
 
+void tile_alt(Monitor * m) {
+	unsigned int n = 0;
+	Client *c;
+
+	for (c = m->clients; c; c = c->next)
+		if (ISVISIBLE(c))
+			n++;
+
+	m->nmaster = n >= 4 ? 2 : 1;
+	tile(m);
+}
