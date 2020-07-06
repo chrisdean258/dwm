@@ -160,7 +160,7 @@ void tile_alt(Monitor * m) {
 	Client *c;
 
 	for (c = m->clients; c; c = c->next)
-		if (ISVISIBLE(c))
+		if (ISVISIBLE(c) && !c->isfloating)
 			n++;
 
 	m->nmaster = n >= 4 ? 2 : 1;
