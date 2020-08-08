@@ -1803,7 +1803,10 @@ unmapnotify(XEvent *e)
 
 	if ((c = wintoclient(ev->window))) {
 		if (ev->send_event)
+		{
+			fprintf(stderr, "send_event unmap");
 			setclientstate(c, WithdrawnState);
+		}
 		else
 			unmanage(c, 0);
 	}

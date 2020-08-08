@@ -95,7 +95,6 @@ static Key keys[] = {
 	{ MODKEY,                       XK_d,         spawn,          SHCMD("discord") },
 	{ MODKEY,                       XK_g,         spawn,          SHCMD("browser") },
 	{ MODKEY|ShiftMask,             XK_g,         spawn,          SHCMD("browser --incognito") },
-	{ MODKEY,                       XK_p,         spawn,          {.v = dmenucmd } },
 	{ MODKEY,                       XK_f,         setlayout,      {.v = &layouts[2]} },
 	{ MODKEY|ShiftMask,             XK_i,         incnmaster,     {.i = +1 } },
 	{ MODKEY,                       XK_i,         incnmaster,     {.i = -1 } },
@@ -103,6 +102,8 @@ static Key keys[] = {
 	{ MODKEY,                       XK_k,         focusstack,     {.i = -1 } },
 	{ MODKEY,                       XK_m,         setlayout,      {.v = &layouts[1]} },
 	{ MODKEY,                       XK_o,         spawn,          SHCMD("monitor --no4k") },
+	{ MODKEY,                       XK_p,         spawn,          {.v = dmenucmd } },
+	{ MODKEY|ShiftMask,             XK_p,         spawn,          SHCMD("dmenu_pass") },
 	{ MODKEY|ShiftMask,             XK_q,         quit,           {0} },
 	{ MODKEY,                       XK_r,         restart,        {0} },
 	{ MODKEY,                       XK_t,         setlayout,      {.v = &layouts[0]} },
@@ -163,6 +164,6 @@ void tile_alt(Monitor * m) {
 		if (ISVISIBLE(c) && !c->isfloating)
 			n++;
 
-	m->nmaster = n >= 4 ? 2 : 1;
+	m->nmaster = (n >= 4 || (m->mh > m->mw && n != 3)) ? 2 : 1;
 	tile(m);
 }
