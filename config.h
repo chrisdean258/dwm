@@ -2,17 +2,13 @@
 
 /* appearance */
 static const unsigned int borderpx  = 1;        /* border pixel of windows */
+static const unsigned int showapp   = 0;        /* 0 means dont show application name */
 static const unsigned int snap      = 32;       /* snap pixel */
-static const int showbar            = 0;        /* 0 means no bar */
+static const int showbar            = 1;        /* 0 means no bar */
 static const int topbar             = 0;        /* 0 means bottom bar */
 static const int focusonwheel       = 0;        /* 0 no focus on wheel */
-#ifndef HD
 static const char *fonts[]          = { "monospace:size=10" };
-static const char dmenufont[]       = "monospace:size=10";
-#else
-static const char *fonts[]          = { "monospace:size=16" };
 static const char dmenufont[]       = "monospace:size=16";
-#endif
 static const char col_gray1[]       = "#111111";
 static const char col_gray2[]       = "#222222";
 static const char col_gray3[]       = "#5d5d5d";
@@ -39,6 +35,7 @@ Client * find_client_by_name(const char * name, search_func func, int tag);
 int strin(const char * a, const char *b);
 int streq(const char * a, const char *b);
 static void tile_alt(Monitor * m);
+static void monocle_alt(Monitor * m);
 
 
 /* tagging */
@@ -51,6 +48,7 @@ static const Rule rules[] = {
 	 */
 	/* class    instance    title                   tags mask     isfloating   monitor */
 	{ "Gimp",   NULL,       "Python Console",       0,            1,           -1 },
+	{ "XClock",   NULL,      NULL,                  -1,           1,           -1 },
 };
 
 /* layout(s) */
@@ -61,7 +59,7 @@ static const int resizehints = 0;    /* 1 means respect size hints in tiled resi
 static const Layout layouts[] = {
 	/* symbol     arrange function */
 	{ "[]=",      tile_alt },    /* first entry is default */
-	{ "[M]",      monocle },
+	{ "[M]",      monocle_alt },
 	{ "><>",      NULL },    /* no layout function means floating behavior */
 };
 
@@ -82,8 +80,8 @@ static const Layout layouts[] = {
 
 /* commands */
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
-static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray4, NULL };
 static const char *termcmd[]  = { "st", NULL };
+static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, NULL };
 
 static Key keys[] = {
 	/* modifier                     key           function        argument */
@@ -168,4 +166,22 @@ void tile_alt(Monitor * m) {
 
 	m->nmaster = (n >= 4 || (m->mh > m->mw && n != 3)) ? 2 : 1;
 	tile(m);
+}
+
+void monocle_alt(Monitor * m) {
+	unsigned int n = 0;
+	Client *c;
+	Arg a;
+
+	for (c = m->clients; c; c = c->next)
+		if (ISVISIBLE(c) && !c->isfloating)
+			n++;
+
+	monocle(m);
+	if (n <= 1)
+	{
+		a.v = &layouts[0];
+		setlayout(&a);
+	}
+
 }
