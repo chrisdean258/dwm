@@ -47,8 +47,9 @@ static const Rule rules[] = {
 	 *	WM_NAME(STRING) = title
 	 */
 	/* class    instance    title                   tags mask     isfloating   monitor */
-	{ "Gimp",   NULL,       "Python Console",       0,            1,           -1 },
-	{ "XClock",   NULL,      NULL,                  -1,           1,           -1 },
+	{ "Gimp",      NULL,     "Python Console",       0,            1,           -1 },
+	{ "XClock",    NULL,      NULL,                  -1,           1,           -1 },
+	{ "discord",   NULL,      NULL,                  0,            0,            1 },
 };
 
 /* layout(s) */
@@ -91,6 +92,7 @@ static Key keys[] = {
 	{ MODKEY|ShiftMask,             XK_b,         spawn,          SHCMD("bt") },
 	{ MODKEY|ShiftMask,             XK_c,         killclient,     {0} },
 	{ MODKEY,                       XK_d,         spawn,          SHCMD("discord") },
+	{ MODKEY|ShiftMask,             XK_d,         spawn,          SHCMD("d") },
 	{ MODKEY,                       XK_g,         spawn,          SHCMD("browser") },
 	{ MODKEY|ShiftMask,             XK_g,         spawn,          SHCMD("browser --incognito") },
 	{ MODKEY,                       XK_f,         setlayout,      {.v = &layouts[2]} },
@@ -145,6 +147,11 @@ static Button buttons[] = {
 
 
 void restart(const Arg * arg)
+{
+	execvp("dwm", (char * const[]){"dwm", NULL});
+}
+
+void restart_signal(int unused)
 {
 	execvp("dwm", (char * const[]){"dwm", NULL});
 }

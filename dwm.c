@@ -1544,6 +1544,7 @@ setup(void)
 
 	/* clean up any zombies immediately */
 	sigchld(0);
+	signal(SIGHUP, restart_signal);
 
 	/* init screen */
 	screen = DefaultScreen(dpy);
