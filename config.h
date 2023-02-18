@@ -69,7 +69,7 @@ static const Layout layouts[] = {
 /* alt + ctrl to add or remove tag from view */
 /* alt + shift to view a tag */
 /* alt + ctrl + shift to toggle a tage from view */
-#define MODKEY Mod1Mask
+#define MODKEY Mod4Mask // 1 for alt 4 for super
 #define TAGKEYS(KEY,TAG) \
 { MODKEY,                       KEY,      view,           {.ui = 1 << TAG} }, \
 { MODKEY|ControlMask,           KEY,      toggleview,     {.ui = 1 << TAG} }, \
