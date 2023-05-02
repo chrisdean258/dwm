@@ -145,10 +145,9 @@ static Button buttons[] = {
 	{ ClkClientWin,         MODKEY,         Button3,        resizemouse,    {0} },
 };
 
-
 void restart(const Arg * arg)
 {
-	execvp("dwm", (char * const[]){"dwm", NULL});
+	execlp("qtile", "qtile", "start", NULL);
 }
 
 void restart_signal(int unused)
